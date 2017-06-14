@@ -1,0 +1,14 @@
+Set rows, columns, device number, square side length
+$ R=6
+$ C=10
+$ D=2
+$ S=20.0
+
+Capture calibration images and calibrate
+$ bin/capture_chessboards --rows=$R --columns=$C --square-size=$S --calibration-folder=cal 2 2 5 imgs
+
+Grab a pair of object images
+$ bin/show_webcams --output_folder=imgs --cap_one 2 2
+
+Generate a point cloud in pc.ply
+$ bin/images_to_pointcloud cal imgs/left.ppm imgs/right.ppm pc.ply
