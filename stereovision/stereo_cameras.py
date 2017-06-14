@@ -91,8 +91,8 @@ class StereoPair(object):
         """
         frame = self.captures[0].read()[1]
         height, width, colors = frame.shape
-        left_frame = frame[:, :width/2, :]
-        right_frame = frame[:, width/2:, :]
+        left_frame = frame[:, :width//2, :]
+        right_frame = frame[:, width//2:, :]
         return [left_frame, right_frame]
 
     def show_frames(self, wait=0):
@@ -105,15 +105,19 @@ class StereoPair(object):
             frames = self.get_frames()
             for window, frame in zip(self.windows, frames):
                 cv2.imshow(window, frame)
-            wk = cv2.waitKey(wait)
-            if wk & 0xFF == ord(' '):
+            if wait == 0:
                 break
+            else:
+                wk = cv2.waitKey(wait)
+                if wk & 0xFF == ord(' '):
+                    print('Stopped showing')
+                    break
         return frames
         
     def show_videos(self):
         """Show video from cameras."""
         while True:
-            self.show_frames(None)
+            self.show_frames()
             wk = cv2.waitKey(1)
             if wk & 0xFF == ord('q'):
                 break
@@ -134,16 +138,18 @@ class ChessboardFinder(StereoPair):
         found_chessboard = [False, False]
         while not all(found_chessboard):
             if show:
-                self.show_frames(None)
-                wk = cv2.waitKey(1)
-                # print('wk&0xff=={}, cmp ord(" ")=={}'.format(wk&0xff, ord(' ')))
-                if wk & 0xFF == ord(' '):
-                    # print('Trying to find')
-                    for i, frame in enumerate(frames):
-                        (found_chessboard[i],
-                         corners) = cv2.findChessboardCorners(frame, (columns, rows),
-                                                          flags=cv2.CALIB_CB_FAST_CHECK)
-                    # print(found_chessboard)
+                frames = self.show_frames()
+            else:
+                frames = self.get_frames()
+            wk = cv2.waitKey(10)
+            #print('wk&0xff=={}, cmp ord(" ")=={}'.format(wk&0xff, ord(' ')))
+            if wk & 0xFF == ord(' '):
+                print('Trying to find')
+                for i, frame in enumerate(frames):
+                    (found_chessboard[i],
+                     corners) = cv2.findChessboardCorners(frame, (columns, rows),
+                                                      flags=cv2.CALIB_CB_FAST_CHECK)
+                print(found_chessboard)
         return frames
 
 

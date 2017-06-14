@@ -57,12 +57,7 @@ def main():
     if args.calibration_folder and not args.square_size:
         args.print_help()
 
-    if args.left == args.right:
-        # Assume a stereo camera where left image is in the first half
-        # of the columns and the right in the last columns
-        args.devices = [args.left]
-    else:
-        args.devices = [args.left, args.right]
+    args.devices = [args.left, args.right]
     progress = ProgressBar(maxval=args.num_pictures,
                           widgets=[Bar("=", "[", "]"),
                           " ", Percentage()])
