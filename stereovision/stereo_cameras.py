@@ -29,6 +29,7 @@ Classes:
 .. image:: classes_stereo_cameras.svg
 """
 
+import numpy as np
 import cv2
 
 from stereovision.point_cloud import PointCloud
@@ -68,7 +69,14 @@ class StereoPair(object):
 
     def get_frames(self):
         """Get current frames from cameras."""
-        return [capture.read()[1] for capture in self.captures]
+        if len(self.captures) == 1:
+            # Assume a stereo camera with left image in the first half
+            # of the columns and right image in the last half of the
+            # columns
+            frame = self.captures[0].read()[1]  # [::2,::2,:]
+            return np.split(frame, 2, 1)
+        else:
+            return [capture.read()[1] for capture in self.captures]
 
     def show_frames(self, wait=0):
         """
@@ -78,13 +86,15 @@ class StereoPair(object):
         """
         for window, frame in zip(self.windows, self.get_frames()):
             cv2.imshow(window, frame)
-        cv2.waitKey(wait)
+        if wait is not None:
+            cv2.waitKey(wait)
 
     def show_videos(self):
         """Show video from cameras."""
         while True:
-            self.show_frames(1)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            self.show_frames(None)
+            wk = cv2.waitKey(1)
+            if wk & 0xFF == ord('q'):
                 break
 
 
@@ -104,11 +114,16 @@ class ChessboardFinder(StereoPair):
         while not all(found_chessboard):
             frames = self.get_frames()
             if show:
-                self.show_frames(1)
-            for i, frame in enumerate(frames):
-                (found_chessboard[i],
-                 corners) = cv2.findChessboardCorners(frame, (columns, rows),
-                                                  flags=cv2.CALIB_CB_FAST_CHECK)
+                self.show_frames(None)
+                wk = cv2.waitKey(1)
+                # print('wk&0xff=={}, cmp ord(" ")=={}'.format(wk&0xff, ord(' ')))
+                if wk & 0xFF == ord(' '):
+                    # print('Trying to find')
+                    for i, frame in enumerate(frames):
+                        (found_chessboard[i],
+                         corners) = cv2.findChessboardCorners(frame, (columns, rows),
+                                                          flags=cv2.CALIB_CB_FAST_CHECK)
+                    # print(found_chessboard)
         return frames
 
 

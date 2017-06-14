@@ -136,6 +136,7 @@ class BMTuner(object):
         try:
             self.block_matcher.__setattr__(parameter, new_value)
         except BadBlockMatcherArgumentError:
+            print('BadBlockMatcherArgumentError')
             return
         self.update_disparity_map()
 
@@ -189,10 +190,12 @@ class BMTuner(object):
         255, because OpenCV multiplies it by 255 when displaying. This is
         because the pixels are stored as floating points.
         """
+        print('Updating disp-map ....')
         disparity = self.block_matcher.get_disparity(self.pair)
         norm_coeff = 255 / disparity.max()
         cv2.imshow(self.window_name, disparity * norm_coeff / 255)
-        cv2.waitKey()
+        print('.... Done')
+        cv2.waitKey(0)
 
     def tune_pair(self, pair):
         """Tune a pair of images."""
@@ -216,7 +219,7 @@ class BMTuner(object):
         value_frequency = {}
         for value in unique_values:
             value_frequency[settings_list.count(value)] = value
-        frequencies = value_frequency.keys()
+        frequencies = list(value_frequency.keys())
         frequencies.sort(reverse=True)
         header = "{} value | Selection frequency".format(parameter)
         left_column_width = len(header[:-21])

@@ -28,6 +28,8 @@ Classes:
 .. image:: classes_blockmatchers.svg
 '''
 
+import os
+
 import cv2
 import simplejson
 
@@ -76,7 +78,7 @@ class BlockMatcher(object):
         #: Block matcher object used for computing point clouds
         self._block_matcher = None
         self._replace_bm()
-        if settings:
+        if settings and os.path.isfile(settings):
             self.load_settings(settings)
 
     def load_settings(self, settings):
@@ -361,9 +363,12 @@ class StereoSGBM(BlockMatcher):
 
     def _replace_bm(self):
         """Replace ``_block_matcher`` with current values."""
-        self._block_matcher = cv2.StereoSGBM_create(self._min_disparity, self._num_disp,
-                                                    self._sad_window_size, self._P1, self._P2,
-                                                    self._max_disparity, speckleWindowSize=self._speckle_window_size, speckleRange=self._speckle_range)
+        self._block_matcher = cv2.StereoSGBM_create(
+            self._min_disparity, self._num_disp,
+            self._sad_window_size, self._P1, self._P2,
+            self._max_disparity,
+            speckleWindowSize=self._speckle_window_size,
+            speckleRange=self._speckle_range)
         """self._block_matcher = cv2.StereoSGBM(minDisparity=self._min_disparity,
                         numDisparities=self._num_disp,
                         SADWindowSize=self._sad_window_size,

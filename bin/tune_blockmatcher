@@ -37,6 +37,7 @@ from stereovision.ui_utils import find_files, BMTuner, STEREO_BM_FLAG
 
 
 def main():
+    global tuner, block_matcher, image_pair,rectified_pair
     parser = ArgumentParser(description="Read images taken from a calibrated "
                            "stereo pair, compute disparity maps from them and "
                            "show them interactively to the user, allowing the "
